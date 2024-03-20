@@ -7,6 +7,8 @@ var mouse_pos := Vector2.ZERO
 @export var dragging_sensitivity := 0.25 # sensetivity when mouse is down
 @export var drag := 5.0
 @export var raft_mass := 2.5 # how hard it is to move the raft when pushing against walls
+@export var max_paddle_distance := 100.0
+@export var min_paddle_distance := 10.0
 
 @onready var paddle : CharacterBody2D = $Paddle
 
@@ -17,14 +19,20 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	mouse_pos += mouse_delta
+	# makes sure the paddle doesn't go too far by clamping the mousedelta within the acceptable donut
+	var future_paddle_pos = paddle.position
+	future_paddle_pos += mouse_delta
+	future_paddle_pos = future_paddle_pos.normalized() * clamp(future_paddle_pos.length(), min_paddle_distance, max_paddle_distance)
+	mouse_delta = future_paddle_pos - paddle.position
 
 	# lmb pressed
 	if Input.is_action_pressed("drop_paddle"):
+		$Paddle/Sprite2D.modulate = Color.GRAY
 		# moves the raft in the opposite direction as the mouse movment
 		velocity = -mouse_delta / delta
 		_move_and_slide_just_raft()
 	else:
+		$Paddle/Sprite2D.modulate = Color.WHITE
 		# move the paddle
 		paddle.velocity = mouse_delta / delta
 		paddle.move_and_slide()
@@ -41,7 +49,6 @@ func _process(delta: float) -> void:
 						velocity.cross(collision_velocity.normalized()) * 
 						collision_velocity.normalized().orthogonal()
 				)
-			#_move_and_slide_just_raft()
 		# applies drag
 		velocity = velocity * exp(-drag * delta)
 		_move_and_slide_just_raft()

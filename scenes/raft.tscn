@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://by65d4ans8rxn"]
+[gd_scene load_steps=6 format=3 uid="uid://by65d4ans8rxn"]
 
 [ext_resource type="Script" path="res://scripts/raft.gd" id="1_wc7nr"]
 [ext_resource type="Texture2D" uid="uid://cbuipmoxdcu41" path="res://icon.svg" id="2_i3i02"]
+[ext_resource type="PackedScene" uid="uid://b8lja23wbjse8" path="res://scenes/arm.tscn" id="3_ijgyg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_my7so"]
 size = Vector2(128, 124)
@@ -13,7 +14,8 @@ size = Vector2(29, 35)
 collision_layer = 0
 motion_mode = 1
 script = ExtResource("1_wc7nr")
-drag = -1.0
+max_paddle_distance = 250.0
+min_paddle_distance = 50.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_i3i02")
@@ -21,14 +23,32 @@ texture = ExtResource("2_i3i02")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_my7so")
 
+[node name="Arm" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_ijgyg")]
+upper_length = 150.0
+lower_length = 100.0
+target = NodePath("../Paddle")
+
+[node name="UpperArm" parent="Arm" index="0"]
+position = Vector2(85, -2)
+scale = Vector2(1.5625, 0.195312)
+texture = ExtResource("2_i3i02")
+
+[node name="LowerArm" parent="Arm/Elbow" index="0"]
+position = Vector2(54, -1.25)
+scale = Vector2(1.07813, 0.253906)
+texture = ExtResource("2_i3i02")
+
 [node name="Paddle" type="CharacterBody2D" parent="."]
 collision_layer = 0
 motion_mode = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Paddle"]
+visible = false
 scale = Vector2(0.25, 0.28125)
 texture = ExtResource("2_i3i02")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Paddle"]
 position = Vector2(-0.5, -0.5)
 shape = SubResource("RectangleShape2D_gamhg")
+
+[editable path="Arm"]
